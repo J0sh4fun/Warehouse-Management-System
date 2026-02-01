@@ -1,2 +1,2 @@
-# Sales-and-Inventory-Management
+# Warehouse-Management-System
 This is the assignment for DBMS
