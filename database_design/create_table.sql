@@ -127,3 +127,11 @@ CREATE TABLE ThanhToan (
     NgayThanhToan DATE,
     FOREIGN KEY (MaDonHang) REFERENCES DonHang(MaDonHang)
 );
+
+-- ==================== PATCH: BỔ SUNG CỘT CÒN THIẾU ====================
+-- Thêm MatKhau cho KhachHang (để Customer có thể đăng nhập)
+ALTER TABLE KhachHang ADD COLUMN MatKhau VARCHAR(255);
+
+-- Thêm TrangThai cho DonHang (Pending/Processing/Delivered/Cancelled)
+ALTER TABLE DonHang ADD COLUMN TrangThai VARCHAR(50) DEFAULT 'Pending';
+
