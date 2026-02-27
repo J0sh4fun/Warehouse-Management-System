@@ -1,4 +1,4 @@
-package com.example.warehousedb.auth.dto;
+package com.example.warehousedb.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -10,7 +10,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AuthResponse {
-
     private String accessToken;
     @Builder.Default
     private String tokenType = "Bearer";
