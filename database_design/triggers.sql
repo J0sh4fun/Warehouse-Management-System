@@ -14,7 +14,7 @@ BEGIN
     WHERE MaKho = (SELECT MaKho FROM DonHang WHERE MaDonHang = NEW.MaDonHang)
       AND MaSanPham = NEW.MaSanPham;
 
-    IF ton < NEW.SoLuong THEN
+    IF ton IS NULL OR ton < NEW.SoLuong THEN
         SIGNAL SQLSTATE '45000'
         SET MESSAGE_TEXT = 'Khong du ton kho';
     ELSE
