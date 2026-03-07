@@ -64,6 +64,16 @@ public class GlobalExceptionHandler {
         ));
     }
 
+    // ── Business state errors ────────────────────────────────────────────────
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<Map<String, Object>> handleIllegalState(IllegalStateException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of(
+                "timestamp", LocalDateTime.now().toString(),
+                "status", 409,
+                "message", ex.getMessage()
+        ));
+    }
+
     // ── Catch-all ─────────────────────────────────────────────────────────────
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, Object>> handleGeneral(Exception ex) {
@@ -74,4 +84,3 @@ public class GlobalExceptionHandler {
         ));
     }
 }
-

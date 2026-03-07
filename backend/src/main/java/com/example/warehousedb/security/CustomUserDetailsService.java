@@ -10,6 +10,7 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,6 +19,7 @@ import java.util.Optional;
 /**
  * Load user theo email — tim trong Admin truoc, neu khong co thi tim KhachHang.
  */
+@Primary
 @Service
 @RequiredArgsConstructor
 public class CustomUserDetailsService implements UserDetailsService {
