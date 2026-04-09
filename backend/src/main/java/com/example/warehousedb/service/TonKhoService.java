@@ -1,8 +1,6 @@
 package com.example.warehousedb.service;
 
 import com.example.warehousedb.dto.response.TonKhoResponse;
-import com.example.warehousedb.entity.Kho;
-import com.example.warehousedb.entity.SanPham;
 import com.example.warehousedb.entity.TonKho;
 import com.example.warehousedb.entity.TonKhoId;
 import com.example.warehousedb.repository.KhoRepository;
@@ -34,7 +32,7 @@ public class TonKhoService {
     // ── GET TON KHO BY KHO ────────────────────────────────────────────────
     @Transactional(readOnly = true)
     public List<TonKhoResponse> getTonKhoByKho(Integer maKho) {
-        Kho kho = khoRepository.findById(maKho)
+        khoRepository.findById(maKho)
                 .orElseThrow(() -> new IllegalArgumentException("Kho khong ton tai: " + maKho));
         return tonKhoRepository.findByKho_MaKho(maKho).stream()
                 .map(this::toResponse).collect(Collectors.toList());
@@ -43,7 +41,7 @@ public class TonKhoService {
     // ── GET TON KHO BY SAN PHAM ───────────────────────────────────────────
     @Transactional(readOnly = true)
     public List<TonKhoResponse> getTonKhoBySanPham(Integer maSanPham) {
-        SanPham sanPham = sanPhamRepository.findById(maSanPham)
+        sanPhamRepository.findById(maSanPham)
                 .orElseThrow(() -> new IllegalArgumentException("San pham khong ton tai: " + maSanPham));
         return tonKhoRepository.findBySanPham_MaSanPham(maSanPham).stream()
                 .map(this::toResponse).collect(Collectors.toList());

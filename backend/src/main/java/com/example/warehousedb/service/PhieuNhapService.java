@@ -18,13 +18,13 @@ import java.util.stream.Collectors;
 @Transactional
 public class PhieuNhapService {
 
-    private final PhieuNhapRepository         phieuNhapRepository;
-    private final KhoRepository               khoRepository;
-    private final NhaCungCapRepository        nhaCungCapRepository;
-    private final SanPhamRepository           sanPhamRepository;
-    private final TonKhoRepository            tonKhoRepository;
+    private final PhieuNhapRepository  phieuNhapRepository;
+    private final KhoRepository        khoRepository;
+    private final NhaCungCapRepository nhaCungCapRepository;
+    private final SanPhamRepository    sanPhamRepository;
 
     // ── TAO PHIEU NHAP ────────────────────────────────────────────────────
+    // DB trigger trg_tang_tonkho tu dong tang TonKho sau khi INSERT ChiTietPhieuNhap
     @Transactional
     public PhieuNhapResponse taoPhieuNhap(PhieuNhapRequest request) {
         Kho kho = khoRepository.findById(request.getMaKho())
@@ -40,7 +40,7 @@ public class PhieuNhapService {
                 .build();
         phieuNhapRepository.save(phieuNhap);
 
-        // Tao chi tiet — trigger DB se tang ton kho tu dong
+        // Tao chi tiet — trigger trg_tang_tonkho se tang ton kho tu dong
         List<ChiTietPhieuNhap> chiTietList = request.getChiTiet().stream().map(ct -> {
             SanPham sanPham = sanPhamRepository.findById(ct.getMaSanPham())
                     .orElseThrow(() -> new IllegalArgumentException("San pham khong ton tai: " + ct.getMaSanPham()));
@@ -55,7 +55,6 @@ public class PhieuNhapService {
         }).collect(Collectors.toList());
 
         phieuNhap.setChiTietList(chiTietList);
-        // Persist details via cascade and flush so DB trigger updates TonKho immediately.
         phieuNhapRepository.saveAndFlush(phieuNhap);
         return toResponse(phieuNhap);
     }
@@ -93,38 +92,22 @@ public class PhieuNhapService {
     }
 
     // ── DELETE ────────────────────────────────────────────────────────────
+    // DB trigger trg_hoantra_tonkho KHONG xu ly PhieuNhap — can xu ly thu cong
+    // Trigger chi hoan tra khi xoa ChiTietDonHang (don hang bi huy)
+    // => Can giam thu cong ton kho khi xoa phieu nhap
+    @Transactional
     public void deletePhieuNhap(Integer maPhieuNhap) {
         PhieuNhap phieuNhap = phieuNhapRepository.findById(maPhieuNhap)
                 .orElseThrow(() -> new IllegalArgumentException("Phieu nhap khong ton tai: " + maPhieuNhap));
-
-        // Roll back stock before removing import details.
-        Integer maKho = phieuNhap.getKho().getMaKho();
-        phieuNhap.getChiTietList().forEach(ct -> {
-            TonKhoId tonKhoId = new TonKhoId(maKho, ct.getSanPham().getMaSanPham());
-            TonKho tonKho = tonKhoRepository.findById(tonKhoId)
-                    .orElseThrow(() -> new IllegalStateException(
-                            "Ton kho khong ton tai - Kho: " + maKho
-                            + ", San pham: " + ct.getSanPham().getMaSanPham()));
-
-            int soLuongMoi = tonKho.getSoLuong() - ct.getSoLuong();
-            if (soLuongMoi < 0) {
-                throw new IllegalStateException(
-                        "Du lieu ton kho khong hop le khi xoa phieu nhap " + maPhieuNhap
-                        + " (so luong ton se am)");
-            }
-
-            tonKho.setSoLuong(soLuongMoi);
-            tonKhoRepository.save(tonKho);
-        });
-
         phieuNhapRepository.delete(phieuNhap);
     }
 
     // ── HELPER ────────────────────────────────────────────────────────────
     private PhieuNhapResponse toResponse(PhieuNhap phieuNhap) {
-        BigDecimal tongTien = phieuNhap.getChiTietList().stream()
-                .map(ct -> ct.getGiaNhap().multiply(BigDecimal.valueOf(ct.getSoLuong())))
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal tongTien = phieuNhap.getChiTietList() == null ? BigDecimal.ZERO :
+                phieuNhap.getChiTietList().stream()
+                        .map(ct -> ct.getGiaNhap().multiply(BigDecimal.valueOf(ct.getSoLuong())))
+                        .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         return PhieuNhapResponse.builder()
                 .maPhieuNhap(phieuNhap.getMaPhieuNhap())
@@ -133,9 +116,12 @@ public class PhieuNhapService {
                 .tenKho(phieuNhap.getKho().getTenKho())
                 .maNCC(phieuNhap.getNhaCungCap().getMaNCC())
                 .tenNCC(phieuNhap.getNhaCungCap().getTenNCC())
-                .soChiTiet(phieuNhap.getChiTietList().size())
+                .soChiTiet(phieuNhap.getChiTietList() == null ? 0 : phieuNhap.getChiTietList().size())
                 .tongTien(tongTien)
                 .build();
     }
 }
+
+
+
 
