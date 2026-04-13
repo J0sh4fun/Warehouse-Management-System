@@ -1,0 +1,42 @@
+# ==============================
+# Workspace / OS / IDE
+# ==============================
+.DS_Store
+Thumbs.db
+
+.idea/
+.vscode/
+
+# ==============================
+# Logs
+# ==============================
+*.log
+logs/
+
+# ==============================
+# Backend (Spring Boot / Maven)
+# ==============================
+backend/target/
+backend/.mvn/wrapper/maven-wrapper.jar
+
+# Local-only datasource credentials (do not commit)
+backend/src/main/resources/application-local.properties
+
+# ==============================
+# Frontend (Next.js)
+# ==============================
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+frontend/build/
+frontend/.vercel/
+frontend/*.tsbuildinfo
+
+# Frontend environment files
+frontend/.env*
+!frontend/.env.example
+
+# Lockfile policy: keep npm lockfile, ignore pnpm lockfile
+frontend/pnpm-lock.yaml
+pnpm-lock.yaml
+

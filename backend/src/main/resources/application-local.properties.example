@@ -1,0 +1,10 @@
+# Local overrides for each developer (do not commit real secrets)
+# Copy this file to application-local.properties and set your own values.
+
+# MySQL password used by spring.datasource.password=${DB_PASSWORD}
+DB_PASSWORD=YOUR_LOCAL_DB_PASSWORD
+
+# JWT secret consumed by JwtTokenProvider via Base64 decode.
+# Generate a strong Base64 secret (at least 32 bytes before Base64 encoding).
+JWT_SECRET=REPLACE_WITH_BASE64_SECRET
+
